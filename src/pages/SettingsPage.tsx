@@ -3,26 +3,14 @@ import {
   Card,
   Button,
   Space,
-  Divider,
   Typography,
   message,
 } from "antd";
-import {
-  DownloadOutlined,
-} from "@ant-design/icons";
+import { DownloadOutlined } from "@ant-design/icons";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeTextFile, writeFile } from "@tauri-apps/plugin-fs";
-import {
-  DEFAULT_EXPENSE_CATEGORIES,
-  DEFAULT_INCOME_CATEGORIES,
-} from "../utils/categories";
 import { getAllRecords } from "../db/database";
 import * as XLSX from "xlsx";
-
-const categories = {
-  expense: [...DEFAULT_EXPENSE_CATEGORIES.map((c) => ({ ...c }))],
-  income: [...DEFAULT_INCOME_CATEGORIES.map((c) => ({ ...c }))],
-};
 
 /** 生成默认文件名 */
 function defaultFileName(ext: string): string {
@@ -128,7 +116,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <Space direction="vertical" style={{ width: "100%", maxWidth: 600 }} size="large">
+    <Space orientation="vertical" style={{ width: "100%", maxWidth: 640 }} size="large">
       {/* 数据导出 */}
       <Card title="数据导出">
         <Typography.Paragraph type="secondary">
@@ -154,37 +142,6 @@ export default function SettingsPage() {
         </Space>
       </Card>
 
-      {/* 分类管理 — 仅展示，编辑功能后续迭代 */}
-      <Card title="分类设置">
-        <Typography.Paragraph type="secondary">
-          当前使用的支出和收入分类。自定义分类编辑功能将在后续版本中推出。
-        </Typography.Paragraph>
-
-        <Typography.Title level={5}>支出分类</Typography.Title>
-        {categories.expense.map((cat) => (
-          <div key={cat.main} style={{ marginBottom: 8 }}>
-            <Typography.Text strong>
-              {cat.icon} {cat.main}
-            </Typography.Text>
-            <br />
-            <Typography.Text type="secondary">
-              {cat.subs.join(" · ")}
-            </Typography.Text>
-          </div>
-        ))}
-
-        <Divider />
-
-        <Typography.Title level={5}>收入分类</Typography.Title>
-        {categories.income.map((cat) => (
-          <div key={cat.main} style={{ marginBottom: 8 }}>
-            <Typography.Text strong>
-              {cat.icon} {cat.main}
-            </Typography.Text>
-          </div>
-        ))}
-      </Card>
-
       {/* 关于 */}
       <Card title="关于">
         <Typography.Paragraph>
@@ -196,6 +153,7 @@ export default function SettingsPage() {
           技术栈：Tauri + React + TypeScript + SQLite
         </Typography.Paragraph>
       </Card>
+
     </Space>
   );
 }

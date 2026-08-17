@@ -12,5 +12,9 @@ export default defineConfig({
     // Tauri 期望在 5173 端口
     port: 5173,
     strictPort: true,
+    watch: {
+      // 忽略 Rust 编译产物目录，避免文件被占用时报错
+      ignored: ["**/src-tauri/target/**"],
+    },
   },
 });

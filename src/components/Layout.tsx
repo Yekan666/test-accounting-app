@@ -4,21 +4,24 @@ import {
   PlusCircleOutlined,
   UnorderedListOutlined,
   PieChartOutlined,
+  TagsOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
 import HomePage from "../pages/HomePage";
 import BillsPage from "../pages/BillsPage";
 import StatsPage from "../pages/StatsPage";
+import CategoriesPage from "../pages/CategoriesPage";
 import SettingsPage from "../pages/SettingsPage";
 
 const { Sider, Content, Header } = AntLayout;
 
-type PageKey = "home" | "bills" | "stats" | "settings";
+type PageKey = "home" | "bills" | "stats" | "categories" | "settings";
 
 const menuItems = [
   { key: "home", icon: <PlusCircleOutlined />, label: "记一笔" },
   { key: "bills", icon: <UnorderedListOutlined />, label: "账单" },
   { key: "stats", icon: <PieChartOutlined />, label: "统计" },
+  { key: "categories", icon: <TagsOutlined />, label: "分类管理" },
   { key: "settings", icon: <SettingOutlined />, label: "设置" },
 ];
 
@@ -33,6 +36,8 @@ export default function Layout() {
         return <BillsPage />;
       case "stats":
         return <StatsPage />;
+      case "categories":
+        return <CategoriesPage />;
       case "settings":
         return <SettingsPage />;
     }

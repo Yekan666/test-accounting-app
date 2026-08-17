@@ -115,7 +115,7 @@ export default function StatsPage() {
 
   return (
     <Spin spinning={loading}>
-      <Space direction="vertical" style={{ width: "100%" }} size="large">
+      <Space orientation="vertical" style={{ width: "100%" }} size="large">
         {/* 月份选择 */}
         <Card size="small">
           <Select
@@ -135,7 +135,7 @@ export default function StatsPage() {
                 value={monthlyData.total_income}
                 precision={2}
                 prefix="¥"
-                valueStyle={{ color: "#52c41a" }}
+                styles={{ content: { color: "#52c41a" } }}
                 suffix={<ArrowUpOutlined />}
               />
             </Card>
@@ -147,7 +147,7 @@ export default function StatsPage() {
                 value={monthlyData.total_expense}
                 precision={2}
                 prefix="¥"
-                valueStyle={{ color: "#ff4d4f" }}
+                styles={{ content: { color: "#ff4d4f" } }}
                 suffix={<ArrowDownOutlined />}
               />
             </Card>
@@ -159,7 +159,7 @@ export default function StatsPage() {
                 value={balance}
                 precision={2}
                 prefix="¥"
-                valueStyle={{ color: balance >= 0 ? "#1677ff" : "#ff4d4f" }}
+                styles={{ content: { color: balance >= 0 ? "#1677ff" : "#ff4d4f" } }}
                 suffix={<WalletOutlined />}
               />
             </Card>

@@ -35,6 +35,16 @@ export interface Category {
   subs: string[];
 }
 
+/** 用户自定义分类（数据库中的一条记录 = 大类 + 小类） */
+export interface CustomCategory {
+  id: number;
+  type: "expense" | "income";
+  main_name: string;
+  sub_name: string;
+  icon: string;
+  created_at: string;
+}
+
 /** 月度统计 */
 export interface MonthlyStats {
   month: string; // YYYY-MM

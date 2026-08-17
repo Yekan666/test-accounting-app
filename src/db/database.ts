@@ -1,5 +1,5 @@
 import Database from "@tauri-apps/plugin-sql";
-import type { Record, NewRecord } from "../types";
+import type { Record, NewRecord, CustomCategory } from "../types";
 
 let db: Database | null = null;
 
@@ -27,6 +27,26 @@ async function initTables(): Promise<void> {
       created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
     )
   `);
+  // 用户自定义分类表（每个分类条目 = 一个大类 + 一个小类）
+  await database.execute(`
+    CREATE TABLE IF NOT EXISTS custom_categories (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      type TEXT NOT NULL,
+      main_name TEXT NOT NULL,
+      sub_name TEXT NOT NULL,
+      icon TEXT NOT NULL DEFAULT '📌',
+      created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+    )
+  `);
+
+  // 旧数据库兼容：早期版本的表没有 icon 列，这里补上（新库执行会报"列已存在"，忽略即可）
+  try {
+    await database.execute(
+      "ALTER TABLE custom_categories ADD COLUMN icon TEXT NOT NULL DEFAULT '📌'"
+    );
+  } catch {
+    // 列已存在，无需处理
+  }
 }
 
 /** 添加一条记录 */
@@ -154,4 +174,76 @@ export async function getDailyTrend(year: number, month: number): Promise<
 export async function getAllRecords(): Promise<Record[]> {
   const database = await getDb();
   return await database.select<Record[]>("SELECT * FROM records ORDER BY date DESC, created_at DESC");
+}
+
+/* ==================== 用户自定义分类 ==================== */
+
+/** 获取某类型（支出/收入）的所有自定义分类条目 */
+export async function getCustomCategories(type: "expense" | "income"): Promise<CustomCategory[]> {
+  const database = await getDb();
+  return await database.select<CustomCategory[]>(
+    `SELECT * FROM custom_categories WHERE type = $1 ORDER BY main_name, sub_name`,
+    [type]
+  );
+}
+
+/** 新增一个自定义分类（大类 + 小类 + 图标） */
+export async function addCustomCategory(
+  type: "expense" | "income",
+  main_name: string,
+  sub_name: string,
+  icon: string
+): Promise<number> {
+  const database = await getDb();
+  const result = await database.execute(
+    `INSERT INTO custom_categories (type, main_name, sub_name, icon) VALUES ($1, $2, $3, $4)`,
+    [type, main_name, sub_name, icon]
+  );
+  return result.lastInsertId as number;
+}
+
+/** 修改自定义分类的名称和图标 */
+export async function renameCustomCategory(
+  id: number,
+  main_name: string,
+  sub_name: string,
+  icon: string
+): Promise<void> {
+  const database = await getDb();
+  await database.execute(
+    `UPDATE custom_categories SET main_name = $1, sub_name = $2, icon = $3 WHERE id = $4`,
+    [main_name, sub_name, icon, id]
+  );
+}
+
+/** 删除一条自定义分类（一个小类） */
+export async function deleteCustomCategory(id: number): Promise<void> {
+  const database = await getDb();
+  await database.execute("DELETE FROM custom_categories WHERE id = $1", [id]);
+}
+
+/** 删除整个自定义大类（连同它下面的所有小类） */
+export async function deleteCustomCategoryByMain(
+  type: "expense" | "income",
+  main_name: string
+): Promise<void> {
+  const database = await getDb();
+  await database.execute(
+    "DELETE FROM custom_categories WHERE type = $1 AND main_name = $2",
+    [type, main_name]
+  );
+}
+
+/** 重命名整个自定义大类（大类名 + 图标），更新该大类下所有行 */
+export async function renameCustomCategoryByMain(
+  type: "expense" | "income",
+  oldMainName: string,
+  newMainName: string,
+  icon: string
+): Promise<void> {
+  const database = await getDb();
+  await database.execute(
+    `UPDATE custom_categories SET main_name = $1, icon = $2 WHERE type = $3 AND main_name = $4`,
+    [newMainName, icon, type, oldMainName]
+  );
 }
