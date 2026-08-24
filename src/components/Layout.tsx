@@ -25,6 +25,7 @@ const menuItems = [
   { key: "settings", icon: <SettingOutlined />, label: "设置" },
 ];
 
+/** 整体布局：左侧导航栏 + 顶部标题栏 + 内容区，负责在 5 个页面间切换 */
 export default function Layout() {
   const [currentPage, setCurrentPage] = useState<PageKey>("home");
 

@@ -17,6 +17,7 @@ function defaultFileName(ext: string): string {
   return `黑马记账_导出_${new Date().toISOString().slice(0, 10)}.${ext}`;
 }
 
+/** 设置页：数据导出（CSV / Excel）+ 关于信息 */
 export default function SettingsPage() {
   const [exporting, setExporting] = useState(false);
 
@@ -50,9 +51,11 @@ export default function SettingsPage() {
       ]);
 
       const BOM = "﻿";
+      // CSV 标准转义：字段内出现引号时双写引号（否则备注含英文引号时，Excel 打开会列错位）
+      const escapeCsvField = (v: string) => `"${v.replace(/"/g, '""')}"`;
       const csvContent =
         BOM +
-        [headers.join(","), ...rows.map((row) => row.map((v) => `"${v}"`).join(","))].join("\n");
+        [headers.join(","), ...rows.map((row) => row.map(escapeCsvField).join(","))].join("\n");
 
       await writeTextFile(filePath, csvContent);
       message.success(`CSV 已保存到：${filePath}`);

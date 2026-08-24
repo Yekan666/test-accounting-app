@@ -31,13 +31,14 @@ interface CategoryFormModalProps {
   open: boolean;
   mode: CategoryFormMode;
   initial?: CategoryFormInitial;
-  /** 重名校验由父组件传入（父组件持有自定义分类数据） */
+  /** 重名校验由父组件传入（父组件持有自定义分类数据）；checkSub 为"改大类名时跳过小类重名检查"开关 */
   validateDuplicate: (
     type: "expense" | "income",
     main: string,
     sub: string,
     excludeId?: number,
-    excludeMain?: string
+    excludeMain?: string,
+    checkSub?: boolean
   ) => Promise<void>;
   /** 保存：父组件负责数据库操作、刷新和关闭弹窗 */
   onSave: (values: CategoryFormValues) => Promise<void>;
@@ -127,16 +128,19 @@ export default function CategoryFormModal({
       // 小类留空时自动填成大类名（与收入预设"工资→工资"的模式一致）
       const finalSub = sub || main;
 
-      // 重名校验（排除自己所在行 / 所在大类组）
-      await validateDuplicate(type, main, finalSub, initial?.id, initial?.main);
+      // 重名校验（排除自己所在行 / 所在大类组；改大类名时不新增小类，跳过小类重名检查）
+      await validateDuplicate(type, main, finalSub, initial?.id, initial?.main, mode !== "rename-main");
 
       setSaving(true);
       await onSave({ id: initial?.id, type, main_name: main, sub_name: finalSub, icon });
     } catch (err) {
-      if (err instanceof Error && err.message) {
-        message.error(err.message);
+      if (err instanceof Error) {
+        if (err.message) message.error(err.message);
+      } else if (typeof err === "string") {
+        // 数据库插件可能抛字符串错误，兜底提示，避免用户点了保存却没任何反馈
+        message.error(err);
       }
-      // 表单校验失败不提示
+      // 表单校验失败（antd 的校验错误对象）不提示
     } finally {
       setSaving(false);
     }

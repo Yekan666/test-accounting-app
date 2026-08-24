@@ -42,6 +42,7 @@ interface CustomGroup {
   items: CustomCategory[];
 }
 
+/** 分类管理页：管理自定义分类（新增/改名/删除/添加小类）+ 展示系统预设分类（只读） */
 export default function CategoriesPage() {
   const [customRows, setCustomRows] = useState<CustomCategory[]>([]);
   const [modalState, setModalState] = useState<{
@@ -85,8 +86,9 @@ export default function CategoriesPage() {
     main: string,
     sub: string,
     excludeId?: number,
-    excludeMain?: string
-  ) => validateDuplicateCategory(type, main, sub, customRows, excludeId, excludeMain);
+    excludeMain?: string,
+    checkSub?: boolean
+  ) => validateDuplicateCategory(type, main, sub, customRows, excludeId, excludeMain, checkSub);
 
   /** 打开"新增分类"弹窗 */
   const openAdd = () => setModalState({ mode: "create", initial: { type: "expense" } });

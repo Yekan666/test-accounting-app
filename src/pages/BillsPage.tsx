@@ -20,12 +20,14 @@ import type { Record } from "../types";
 
 const { RangePicker } = DatePicker;
 
+/** 账单列表页：按时间倒序展示全部记录，支持按类型、日期范围筛选，可删除 */
 export default function BillsPage() {
   const [records, setRecords] = useState<Record[]>([]);
   const [loading, setLoading] = useState(false);
   const [typeFilter, setTypeFilter] = useState<"all" | "expense" | "income">("all");
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
 
+  /** 加载账单列表：按当前筛选条件（类型、日期范围）查询数据库并刷新表格 */
   const loadRecords = useCallback(async () => {
     setLoading(true);
     try {
@@ -52,6 +54,7 @@ export default function BillsPage() {
     loadRecords();
   }, [loadRecords]);
 
+  /** 删除一条记录并刷新列表 */
   const handleDelete = async (id: number) => {
     try {
       await deleteRecord(id);

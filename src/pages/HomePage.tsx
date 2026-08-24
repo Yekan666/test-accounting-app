@@ -41,6 +41,7 @@ import CategoryFormModal, {
 } from "../components/CategoryFormModal";
 import type { CustomCategory, NewRecord } from "../types";
 
+/** 首页/记一笔页：记录账目（支出/收入），并在下拉内直接管理自定义分类 */
 export default function HomePage() {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -109,6 +110,7 @@ export default function HomePage() {
       })
     : [];
 
+  /** 切换记录类型（支出/收入）：重置已选分类、关闭分类弹窗，避免弹窗指向旧类型 */
   const handleTypeChange = (type: "expense" | "income") => {
     setRecordType(type);
     setSelectedMain(null);
@@ -116,6 +118,7 @@ export default function HomePage() {
     form.setFieldsValue({ category_main: undefined, category_sub: undefined });
   };
 
+  /** 切换大类：清空已选小类（小类属于旧大类，已失效） */
   const handleMainChange = (main: string) => {
     setSelectedMain(main);
     form.setFieldsValue({ category_sub: undefined });
@@ -127,8 +130,10 @@ export default function HomePage() {
     main: string,
     sub: string,
     excludeId?: number,
-    excludeMain?: string
-  ) => validateDuplicateCategory(type, main, sub, customCategories, excludeId, excludeMain);
+    excludeMain?: string,
+    checkSub?: boolean
+  ) =>
+    validateDuplicateCategory(type, main, sub, customCategories, excludeId, excludeMain, checkSub);
 
   /** 收起两个下拉（打开弹窗前调用，避免弹窗关闭后误点选项） */
   const closeDropdowns = () => {
@@ -234,6 +239,7 @@ export default function HomePage() {
     }
   };
 
+  /** 提交记账：组装记录写入数据库，成功后清空表单 */
   const handleSubmit = async (values: {
     amount: number;
     category_main: string;

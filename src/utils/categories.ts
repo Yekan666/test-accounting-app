@@ -80,6 +80,7 @@ export function mergeCategories(
  * @param customRows  当前已加载的自定义分类行
  * @param excludeId   编辑某一行时排除自己（行级）
  * @param excludeMain 添加小类 / 改大类名时排除自己所在的大类组（组级）
+ * @param checkSub    是否检查小类重名（改大类名时不新增小类，应跳过；默认检查）
  */
 export async function validateDuplicateCategory(
   type: "expense" | "income",
@@ -87,7 +88,8 @@ export async function validateDuplicateCategory(
   sub: string,
   customRows: CustomCategory[],
   excludeId?: number,
-  excludeMain?: string
+  excludeMain?: string,
+  checkSub = true
 ): Promise<void> {
   const defaults = type === "expense" ? DEFAULT_EXPENSE_CATEGORIES : DEFAULT_INCOME_CATEGORIES;
 
@@ -105,21 +107,23 @@ export async function validateDuplicateCategory(
     throw new Error(`自定义分类中已有「${main}」大类，请换一个名字`);
   }
 
-  // 3. 小类与预设小类重名 → 不允许
-  const presetCat = defaults.find((c) => c.main === main);
-  if (presetCat?.subs.includes(sub)) {
-    throw new Error(`系统预设分类中已有「${sub}」，请换一个名字`);
-  }
+  // 3. 小类与预设小类重名 → 不允许（仅针对预设大类；自定义大类名已被规则 1 挡住，属防御性分支）
+  if (checkSub) {
+    const presetCat = defaults.find((c) => c.main === main);
+    if (presetCat?.subs.includes(sub)) {
+      throw new Error(`系统预设分类中已有「${sub}」，请换一个名字`);
+    }
 
-  // 4. 自定义分类中同大类同小类重复 → 不允许（排除自己的行）
-  const dup = customRows.some(
-    (r) =>
-      r.id !== excludeId &&
-      r.type === type &&
-      r.main_name === main &&
-      r.sub_name === sub
-  );
-  if (dup) {
-    throw new Error(`「${main}」下已有「${sub}」，请换一个名字`);
+    // 4. 自定义分类中同大类同小类重复 → 不允许（排除自己的行）
+    const dup = customRows.some(
+      (r) =>
+        r.id !== excludeId &&
+        r.type === type &&
+        r.main_name === main &&
+        r.sub_name === sub
+    );
+    if (dup) {
+      throw new Error(`「${main}」下已有「${sub}」，请换一个名字`);
+    }
   }
 }

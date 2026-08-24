@@ -4,7 +4,7 @@
 
 - **应用名称**：黑马记账
 - **应用类型**：桌面应用（Windows + Mac）
-- **技术栈**：Tauri v2 + React 18 + TypeScript + SQLite
+- **技术栈**：Tauri v2 + React 19 + TypeScript + SQLite
 - **货币单位**：人民币（¥/元）
 - **记录类型**：支出 + 收入
 
@@ -21,8 +21,8 @@
 | 层次 | 技术 |
 |------|------|
 | 桌面框架 | Tauri v2 |
-| 前端框架 | React 18 + TypeScript |
-| UI 组件库 | Ant Design 5 |
+| 前端框架 | React 19 + TypeScript |
+| UI 组件库 | Ant Design 6 |
 | 图表库 | Recharts |
 | 本地数据库 | SQLite（tauri-plugin-sql） |
 | 构建工具 | Vite |
@@ -32,29 +32,31 @@
 ## 项目结构
 
 ```
-heimabookkeeping/
 ├── src/                      # React 前端源码
-│   ├── App.tsx               # 应用入口
+│   ├── App.tsx               # 应用入口（主题、中文语言包）
 │   ├── main.tsx              # React 渲染入口
 │   ├── index.css             # 全局样式
 │   ├── components/           # 通用组件
-│   │   └── Layout.tsx        # 整体布局（侧边栏 + 内容区）
+│   │   ├── Layout.tsx        # 整体布局（侧边栏 + 内容区）
+│   │   └── CategoryFormModal.tsx  # 共享的分类新增/编辑弹窗
 │   ├── pages/                # 页面组件
 │   │   ├── HomePage.tsx      # 首页/记一笔
 │   │   ├── BillsPage.tsx     # 账单列表
 │   │   ├── StatsPage.tsx     # 统计图表
-│   │   └── SettingsPage.tsx  # 设置
+│   │   ├── CategoriesPage.tsx # 分类管理
+│   │   └── SettingsPage.tsx  # 设置（含 CSV/Excel 导出）
 │   ├── db/                   # 数据库操作层
 │   │   └── database.ts       # SQLite 增删改查
 │   ├── types/                # TypeScript 类型定义
 │   │   └── index.ts
 │   └── utils/                # 工具函数
-│       ├── categories.ts     # 默认分类数据
-│       └── export.ts         # CSV/Excel 导出
+│       └── categories.ts     # 默认分类数据 + 重名校验
 ├── src-tauri/                # Tauri Rust 后端
 │   ├── src/
 │   │   ├── main.rs           # Rust 入口
 │   │   └── lib.rs            # Tauri 配置（插件注册）
+│   ├── capabilities/         # 权限配置
+│   │   └── default.json
 │   ├── Cargo.toml            # Rust 依赖
 │   └── tauri.conf.json       # Tauri 配置
 ├── package.json

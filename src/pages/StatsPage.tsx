@@ -49,6 +49,7 @@ function getMonthOptions() {
   return options;
 }
 
+/** 统计页：月度收支概览 + 支出分类占比饼图 + 每日收支趋势柱状图 */
 export default function StatsPage() {
   const [selectedMonth, setSelectedMonth] = useState(dayjs().format("YYYY-MM"));
   const [loading, setLoading] = useState(false);
@@ -58,6 +59,7 @@ export default function StatsPage() {
     { date: string; expense: number; income: number }[]
   >([]);
 
+  /** 加载选中月份的统计数据：收支合计、分类统计、每日趋势（补全当月没有记账的空日期） */
   const loadStats = useCallback(async () => {
     setLoading(true);
     try {
