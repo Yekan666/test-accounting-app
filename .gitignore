@@ -25,6 +25,9 @@ src-tauri/target/
 *.exe
 *.msi
 
+# 质量关卡合格证（体检通过后由子代理签发，仅本机有效，不入库）
+.quality/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

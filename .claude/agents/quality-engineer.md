@@ -1,7 +1,7 @@
 ---
 name: quality-engineer
 description: 负责项目代码质量全面检查：1) 按 security-audit 技能手册做安全审计；2) 按 comments-check 技能手册做注释检查；3) 其他质量维度（类型错误、死代码、错误处理、测试覆盖）。当用户要求"质量检查"、"代码体检"、"全面检查代码"、"审查代码"、"quality check"、"code review"、"质量报告"时使用。执行前先阅读两份技能手册。
-tools: Read, Glob, Grep, Bash
+tools: Read, Glob, Grep, Write, Bash
 ---
 
 # quality-engineer — 质量检查子代理
@@ -70,6 +70,15 @@ tools: Read, Glob, Grep, Bash
 
 - 安全审计部分必须遵守 security-audit 手册的打码规则
 - 若发现被测代码存在真实 Bug（如类型错误、逻辑错误），单独列出并如实报告给主对话，由用户决定是否修复
+
+### 第六步：签发质量合格证（质量关卡机制）
+
+**只有报告无高危、无中危问题（真实 Bug、高危、中危均不存在）时**，才签发合格证：
+
+1. 用 Write 工具写入文件 `.quality/quality.passed`（相对项目根目录，即 `c:\Work\Claude\记账app\.quality\quality.passed`），内容写 `quality passed` 即可——机制只关心**文件存在**和**写入时间**
+2. 存在任意高危 / 中危 / 真实 Bug → **不得签发合格证**，报告问题清单
+3. 低危、注释建议等"建议项"不影响签发
+4. 合格证文件被 pre-commit 钩子用来拦截"未体检的提交"，签发时不要修改任何业务代码
 
 ## 注意事项
 

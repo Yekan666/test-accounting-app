@@ -122,6 +122,16 @@ npx tauri build
 npx tsc -b --noEmit
 ```
 
+## 提交质量关卡（git hook）
+
+每次 `git commit` 前，pre-commit 钩子会自动检查"体检合格证"：
+
+- **合格证机制**：tester（单元测试全过）和 quality-engineer（无高危/中危问题）体检通过后，分别在 `.quality/` 目录签发合格证（该目录已被 gitignore，只在本机有效）
+- **两条拦截规则**：① 没有合格证 → 拒绝提交；② 体检后改过代码（代码文件比合格证新）→ 合格证作废，拒绝提交
+- **正常流程**：运行 gitcommit-agent → 并行体检 → 合格证签发 → 自动提交并推送，一步完成
+- **强制绕过**（不推荐，风险自负）：`git commit --no-verify`
+- **钩子激活命令**（新克隆仓库时执行一次）：`git config core.hooksPath .githooks`
+
 ## 构建环境要求
 
 - Node.js >= 18

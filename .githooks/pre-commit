@@ -1,0 +1,48 @@
+#!/bin/sh
+# ============================================================
+# 黑马记账 提交质量关卡（pre-commit 钩子）
+#
+# 规则：
+#   1. 必须存在两张"体检合格证"（测试合格证 + 质量合格证）
+#   2. 合格证必须比所有代码文件"新"（体检后改过代码 = 证作废）
+# 放行 → exit 0；拦截 → exit 1（git 拒绝提交）
+#
+# 合格证由 tester / quality-engineer 子代理体检通过后签发，
+# 存放于 .quality/ 目录（已被 .gitignore 忽略，不会入库）。
+# ============================================================
+
+QUALITY_DIR=".quality"
+TESTER_CERT="$QUALITY_DIR/tester.passed"
+QUALITY_CERT="$QUALITY_DIR/quality.passed"
+
+# 需要纳入时间检查的代码范围（排除编译产物 src-tauri/target 与生成的 schema）
+CODE_PATHS="src src-tauri package.json package-lock.json vite.config.ts tsconfig.json tsconfig.app.json tsconfig.node.json"
+
+# ---- 规则 1：两张合格证都必须存在 ----
+if [ ! -f "$TESTER_CERT" ] || [ ! -f "$QUALITY_CERT" ]; then
+  echo "❌ 提交被拦截：缺少体检合格证（测试 / 质量检查）"
+  echo "   请先运行 gitcommit-agent（自动完成体检并提交），或："
+  echo "   1) 跑单元测试：npm test"
+  echo "   2) 跑质量检查：调用 quality-engineer"
+  echo "   强制提交（不推荐）：git commit --no-verify"
+  exit 1
+fi
+
+# ---- 规则 2：代码文件不能比合格证更新（体检后改过代码 = 证作废） ----
+# 以两张证中较早的一张为基准，任何代码文件比它新 → 拦截
+if [ "$TESTER_CERT" -nt "$QUALITY_CERT" ]; then
+  OLDEST_CERT="$QUALITY_CERT"
+else
+  OLDEST_CERT="$TESTER_CERT"
+fi
+
+if find $CODE_PATHS \
+    \( -path "src-tauri/target" -o -path "src-tauri/gen" \) -prune -o \
+    -type f -newer "$OLDEST_CERT" -print 2>/dev/null | head -1 | grep -q .; then
+  echo "❌ 提交被拦截：体检后代码有改动，合格证已过期"
+  echo "   请重新运行 gitcommit-agent 完成体检后再提交"
+  echo "   强制提交（不推荐）：git commit --no-verify"
+  exit 1
+fi
+
+exit 0
