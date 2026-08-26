@@ -3,3 +3,5 @@
 .githooks/* text eol=lf
 # .md 文档同样强制 LF，统一行尾并消除 "LF will be replaced by CRLF" 警告
 *.md text eol=lf
+# .gitattributes 自身也强制 LF（防止 git 把它转成 CRLF 后规则失效）
+.gitattributes text eol=lf

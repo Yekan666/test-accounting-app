@@ -28,6 +28,9 @@ src-tauri/target/
 # 质量关卡合格证（体检通过后由子代理签发，仅本机有效，不入库）
 .quality/
 
+# 本机专属的 Claude Code 授权配置（记录用户允许执行的命令清单，换电脑克隆时避免误提交）
+.claude/settings.local.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
