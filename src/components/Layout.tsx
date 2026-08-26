@@ -29,6 +29,7 @@ const menuItems = [
 export default function Layout() {
   const [currentPage, setCurrentPage] = useState<PageKey>("home");
 
+  /** 按当前选中的菜单项渲染对应页面 */
   const renderPage = () => {
     switch (currentPage) {
       case "home":
